@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VGU - Academic Profile & Placement Portal | Vivekananda Global University</title>
+  <meta name="description" content="Official Academic Profile Portal of Vivekananda Global University (VGU). Centralized student records, faculty verification workflows, placement portfolios, and accredited documentation.">
+  <link rel="icon" type="image/svg+xml" href="/static/images/campus_crest.svg">
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+
+  <!-- SVG Gradient Definitions -->
+  <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="meterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#3b82f6" />
+        <stop offset="100%" stop-color="#10b981" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- Sticky App Topbar (Hidden on Splash) -->
+  <header id="app-topbar" class="app-topbar hidden">
+    <a href="#" class="topbar-brand" onclick="App.showView(App.currentUser.role === 'admin' ? 'view-admin-portal' : 'view-student-portal'); return false;">
+      <img src="/static/images/campus_crest.svg" alt="VGU Crest" class="topbar-crest">
+      <div class="brand-text">
+        <h1>VIVEKANANDA GLOBAL UNIVERSITY</h1>
+        <span>VGU Academic Profile Portal</span>
+      </div>
+    </a>
+
+    <div class="topbar-actions">
+      <div class="user-badge">
+        <img id="topbar-avatar" src="/static/images/avatars/default.svg" alt="User Avatar" class="user-avatar-sm">
+        <div class="user-details">
+          <div id="topbar-name" class="user-name">User Name</div>
+          <div id="topbar-role" class="user-role-tag">Student</div>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="App.logout()">Logout ↪</button>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       VIEW 1: CAMPUS SPLASH & DUAL LOGIN (VGU)
+       ========================================================================= -->
+  <main id="view-splash" class="app-view splash-container">
+    <div class="campus-hero">
+      <div class="crest-glow">
+        <img src="/static/images/campus_crest.svg" alt="VGU University Crest">
+      </div>
+      <div class="badge-university">Vivekananda Global University • NAAC A+ Accredited</div>
+      <h1 class="campus-title">VGU Academic Profile Portal</h1>
+      <p class="campus-subtitle">Official university repository for student academic dossiers, faculty verification workflows, industry certifications, and placement analytics.</p>
+    </div>
+
+    <!-- Dual Entry Cards: Student Login vs Admin Login -->
+    <div class="entry-grid">
+      
+      <!-- Student Login Card -->
+      <div class="entry-card student">
+        <div class="card-icon">🎓</div>
+        <h2 class="entry-title">Student Portal</h2>
+        <p class="entry-desc">Access your VGU academic dossier, submit semester marks, verify certificates, and track placement readiness.</p>
+        
+        <form id="form-student-login" class="auth-form">
+          <div class="form-group">
+            <label class="form-label" for="student-login-id">Enrollment Number <span class="required">*</span></label>
+            <input type="text" id="student-login-id" class="form-input" placeholder="e.g. EN2023SE042" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="student-login-pw">Password <span class="required">*</span></label>
+            <input type="password" id="student-login-pw" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;">
+            <button type="button" class="btn-link" onclick="App.openRegisterModal()" style="color: #34d399; font-weight: 600;">+ New Student Register</button>
+            <button type="button" class="btn-link" onclick="App.openForgotPassword('student')">Forgot Password? (OTP)</button>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">Student Sign In →</button>
+        </form>
+      </div>
+
+      <!-- Admin Login Card -->
+      <div class="entry-card admin">
+        <div class="card-icon">🏛️</div>
+        <h2 class="entry-title">Faculty & Admin Portal</h2>
+        <p class="entry-desc">Dean & departmental administration. Filter student profiles, verify registrations, review submissions, and send bulk mailers.</p>
+        
+        <form id="form-admin-login" class="auth-form">
+          <div class="form-group">
+            <label class="form-label" for="admin-login-id">Employee ID <span class="required">*</span></label>
+            <input type="text" id="admin-login-id" class="form-input" placeholder="e.g. ADM-1001" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="admin-login-pw">Password <span class="required">*</span></label>
+            <input type="password" id="admin-login-pw" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+          <div style="display: flex; justify-content: flex-end;">
+            <button type="button" class="btn-link" onclick="App.openForgotPassword('admin')">Forgot Password? (OTP)</button>
+          </div>
+          <button type="submit" class="btn btn-success" style="margin-top: 0.5rem;">Admin Sign In →</button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Quick Demo Accounts Switcher -->
+    <div class="demo-strip">
+      <div class="demo-title">⚡ <span>Quick Demo Test Accounts:</span></div>
+      <div class="demo-chips">
+        <button class="demo-chip" onclick="App.fillDemoCredentials('student', 'EN2023SE042', 'pass123')">
+          👤 Aman Verma (Verified Student)
+        </button>
+        <button class="demo-chip" onclick="App.fillDemoCredentials('student', 'EN2023DS012', 'pass123')">
+          ⏳ Tanvi Mehta (Pending Approval)
+        </button>
+        <button class="demo-chip" onclick="App.fillDemoCredentials('admin', 'ADM-1001', 'pass123')">
+          🛡️ Dr. Rajesh Sharma (Dean Admin)
+        </button>
+      </div>
+    </div>
+  </main>
+
+
+  <!-- =========================================================================
+       VIEW 2: STUDENT DASHBOARD (VGU)
+       ========================================================================= -->
+  <main id="view-student-portal" class="app-view dashboard-container hidden">
+
+    <!-- Pending Verification Warning Banner -->
+    <div id="student-pending-banner" class="profile-card hidden" style="background: rgba(245, 158, 11, 0.15); border: 2px solid #f59e0b; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <span style="font-size: 2.2rem;">⚠️</span>
+        <div>
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: #fbbf24; margin-bottom: 0.2rem;">Account Verification Pending Admin Approval</h3>
+          <p style="font-size: 0.85rem; color: #f8fafc;">Your student profile has been submitted and is currently awaiting administrator review. <strong>Edit access to each section, file uploads, marks, and certificates will be unlocked once your profile is verified by VGU administration.</strong></p>
+        </div>
+      </div>
+      <div>
+        <span class="status-pill status-pending" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">⏳ Status: Pending Review</span>
+      </div>
+    </div>
+
+    <!-- Profile Completeness Indicator Banner -->
+    <div class="completeness-banner">
+      <div class="completeness-info">
+        <div class="completeness-title">
+          <span>VGU Profile Completeness Tracker</span>
+          <span id="student-verified-badge" class="status-pill status-approved">🛡️ Verified Profile</span>
+          <span id="student-completeness-badge" class="completeness-badge badge-good">Good Progress</span>
+        </div>
+        <p id="student-completeness-desc" class="completeness-desc">
+          Upload certificates, resume, and mandatory semester marks to maximize placement eligibility.
+        </p>
+        <div class="completeness-progress-bar">
+          <div id="student-progress-fill" class="progress-fill" style="width: 0%;"></div>
+        </div>
+        <div id="completeness-checklist" style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.85rem;"></div>
+      </div>
+
+      <!-- Circular Meter -->
+      <div class="meter-wrapper">
+        <svg class="meter-svg" viewBox="0 0 100 100">
+          <circle class="meter-circle-bg" cx="50" cy="50" r="38"></circle>
+          <circle id="student-meter-fill" class="meter-circle-fill" cx="50" cy="50" r="38" stroke-dasharray="238.76" stroke-dashoffset="238.76"></circle>
+        </svg>
+        <div class="meter-text">
+          <div id="student-meter-number" class="meter-number">0%</div>
+          <div class="meter-label">Complete</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Navigation Tabs -->
+    <nav class="portal-tabs" aria-label="Student Navigation Tabs">
+      <button class="tab-btn active" data-student-tab="panel-basic-details">📋 Basic Details (Compulsory)</button>
+      <button class="tab-btn" data-student-tab="panel-academics">📊 Semester Marks & CGPA</button>
+      <button class="tab-btn" data-student-tab="panel-skills-roles">💡 Skills & Roles</button>
+      <button class="tab-btn" data-student-tab="panel-projects-work">🚀 Projects & Resume</button>
+      <button class="tab-btn" data-student-tab="panel-certifications">📜 Certificates & Events</button>
+      <button class="tab-btn" data-student-tab="panel-submissions-status">⏳ Submissions & Reviews</button>
+      <button class="tab-btn" data-student-tab="panel-requirements">📢 VGU Requirements</button>
+    </nav>
+
+    <!-- TAB 1: COMPULSORY BASIC DETAILS FORM -->
+    <section id="panel-basic-details" class="student-tab-panel">
+      <form id="student-basic-form" class="dashboard-grid">
+        
+        <!-- Left: Photo Upload Card -->
+        <div class="profile-card photo-uploader">
+          <img id="student-photo-preview" src="/static/images/avatars/default.svg" alt="Profile Photo" class="photo-avatar">
+          <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem;">Official Profile Photo</h3>
+          <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 1rem;">Compulsory formal photo (JPG/PNG)</p>
+          <div class="photo-btn-wrap">
+            <button type="button" class="btn btn-secondary btn-sm">📷 Change Photo</button>
+            <input type="file" id="student-photo-input" class="photo-input" accept="image/*">
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem;">
+            Saved hierarchically under: <br><code>.../basic_details/</code>
+          </div>
+        </div>
+
+        <!-- Right: 11 Compulsory Fields Form -->
+        <div class="profile-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700;">VGU Student Academic Record</h3>
+            <span style="font-size: 0.75rem; color: var(--rose);">* All 12 fields compulsory</span>
+          </div>
+
+          <div class="form-grid-2" style="margin-bottom: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="bd-enrollment_no">Enrollment Number <span class="required">*</span></label>
+              <input type="text" id="bd-enrollment_no" class="form-input" readonly required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="bd-full_name">Full Name <span class="required">*</span></label>
+              <input type="text" id="bd-full_name" class="form-input" required placeholder="Full Legal Name">
+            </div>
+          </div>
+
+          <div class="form-grid-3" style="margin-bottom: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="bd-dob">Date of Birth <span class="required">*</span></label>
+              <input type="date" id="bd-dob" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="bd-branch">Branch <span class="required">*</span></label>
+              <select id="bd-branch" class="form-select" required>
+                <option value="Software Engineering">Software Engineering</option>
+                <option value="AIML">AIML</option>
+                <option value="Data Science">Data Science</option>
+                <option value="Cyber Security">Cyber Security</option>
+                <option value="Electronics & Communication">Electronics & Communication</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="bd-program">Program <span class="required">*</span></label>
+              <select id="bd-program" class="form-select" required>
+                <option value="B.Tech">B.Tech</option>
+                <option value="M.Tech">M.Tech</option>
+                <option value="BCA">BCA</option>
+                <option value="MCA">MCA</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-3" style="margin-bottom: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="bd-class_name">Class <span class="required">*</span></label>
+              <input type="text" id="bd-class_name" class="form-input" placeholder="e.g. SE-3A" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="bd-section">Section <span class="required">*</span></label>
+              <input type="text" id="bd-section" class="form-input" placeholder="e.g. Section A" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="bd-semester">Semester <span class="required">*</span></label>
+              <select id="bd-semester" class="form-select" required>
+                <option value="1">Semester 1</option>
+                <option value="2">Semester 2</option>
+                <option value="3">Semester 3</option>
+                <option value="4">Semester 4</option>
+                <option value="5">Semester 5</option>
+                <option value="6">Semester 6</option>
+                <option value="7">Semester 7</option>
+                <option value="8">Semester 8</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-3" style="margin-bottom: 1.5rem;">
+            <div class="form-group">
+              <label class="form-label" for="bd-semester_year">Semester Year <span class="required">*</span></label>
+              <select id="bd-semester_year" class="form-select" required>
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="bd-mobile">Mobile Number <span class="required">*</span></label>
+              <input type="tel" id="bd-mobile" class="form-input" placeholder="10-digit mobile" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="bd-email">VGU Email <span class="required">*</span></label>
+              <input type="email" id="bd-email" class="form-input" placeholder="name@vgu.ac.in" required>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn btn-primary">Save Compulsory Details</button>
+          </div>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- TAB 2: SEMESTER MARKS & CGPA -->
+    <section id="panel-academics" class="student-tab-panel hidden">
+      <div class="profile-card" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h3 style="font-size: 1.25rem; font-weight: 700;">Cumulative Performance (CGPA)</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Calculated automatically across all verified semester SGPAs.</p>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">Overall CGPA</div>
+          <div id="student-cgpa-display" style="font-size: 2.2rem; font-weight: 800; color: #60a5fa; line-height: 1;">0.00</div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>Semester</th>
+              <th>SGPA</th>
+              <th>Uploaded Marksheet File</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="student-marks-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 3: SKILLS & CODING PROFILES -->
+    <section id="panel-skills-roles" class="student-tab-panel hidden">
+      <div class="dashboard-grid">
+        
+        <div class="profile-card">
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.25rem;">Coding & Social Profiles</h3>
+          
+          <div class="form-group" style="margin-bottom: 0.85rem;">
+            <label class="form-label" for="link-linkedin">LinkedIn Profile URL</label>
+            <input type="url" id="link-linkedin" class="form-input" placeholder="https://linkedin.com/in/username">
+          </div>
+          <div class="form-group" style="margin-bottom: 0.85rem;">
+            <label class="form-label" for="link-github">GitHub Profile URL</label>
+            <input type="url" id="link-github" class="form-input" placeholder="https://github.com/username">
+          </div>
+          <div class="form-group" style="margin-bottom: 0.85rem;">
+            <label class="form-label" for="link-leetcode">LeetCode Profile URL</label>
+            <input type="url" id="link-leetcode" class="form-input" placeholder="https://leetcode.com/u/username">
+          </div>
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label class="form-label" for="link-codeforces">Codeforces Profile URL</label>
+            <input type="url" id="link-codeforces" class="form-input" placeholder="https://codeforces.com/profile/username">
+          </div>
+
+          <button type="button" id="btn-save-links" class="btn btn-primary" style="width: 100%;">Save Profile URLs</button>
+        </div>
+
+        <div class="profile-card">
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.25rem;">Skills & Career Aspirations</h3>
+
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label class="form-label">Technical Skills (Press Enter to add)</label>
+            <div id="tags-tech-skills" class="tags-wrapper">
+              <input type="text" class="tag-input" data-placeholder="e.g. Python, React, Docker..." placeholder="e.g. Python, React, Docker..." onkeydown="if(event.key==='Enter'){event.preventDefault(); StudentController.addTag('tags-tech-skills', this);}">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label class="form-label">Soft Skills (Press Enter to add)</label>
+            <div id="tags-soft-skills" class="tags-wrapper">
+              <input type="text" class="tag-input" data-placeholder="e.g. Leadership, Teamwork..." placeholder="e.g. Leadership, Teamwork..." onkeydown="if(event.key==='Enter'){event.preventDefault(); StudentController.addTag('tags-soft-skills', this);}">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label class="form-label">Target Job Roles (Press Enter to add)</label>
+            <div id="tags-target-roles" class="tags-wrapper">
+              <input type="text" class="tag-input" data-placeholder="e.g. Full-Stack Developer, AI Engineer..." placeholder="e.g. Full-Stack Developer, AI Engineer..." onkeydown="if(event.key==='Enter'){event.preventDefault(); StudentController.addTag('tags-target-roles', this);}">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 4: PROJECTS & RESUME -->
+    <section id="panel-projects-work" class="student-tab-panel hidden">
+      <div class="profile-card" style="margin-bottom: 2rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.85rem;">Official Academic & Placement Resume</h3>
+        <input type="file" id="resume-file-input" class="hidden" accept=".pdf">
+        <div id="resume-view-container"></div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div>
+          <h3 style="font-size: 1.2rem; font-weight: 700;">Software & Engineering Projects</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Showcase capstone projects, full-stack applications, and research implementations.</p>
+        </div>
+        <button id="btn-add-project-modal" class="btn btn-primary btn-sm" onclick="document.getElementById('modal-project').classList.add('active')">+ Add New Project</button>
+      </div>
+
+      <div id="student-projects-list"></div>
+    </section>
+
+    <!-- TAB 5: CERTIFICATES, WORKSHOPS & SEMINARS (WITH IMAGES) -->
+    <section id="panel-certifications" class="student-tab-panel hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h3 style="font-size: 1.2rem; font-weight: 700;">Certifications, Workshops & Seminars</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Verified credentials, workshops with event photos, and seminar participation.</p>
+        </div>
+        <button id="btn-upload-cert-modal" class="btn btn-primary btn-sm" onclick="StudentController.openCertificateModal()">+ Upload Certificate</button>
+      </div>
+
+      <div class="form-grid-2" style="margin-bottom: 1.5rem;">
+        <!-- Hackathons Participated -->
+        <div class="profile-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+            <h4 style="font-weight: 700;">🏆 Hackathons Participated</h4>
+            <button id="btn-add-hack-modal" class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-hackathon').classList.add('active')">+ Add</button>
+          </div>
+          <div id="student-hackathons-list"></div>
+        </div>
+
+        <!-- Workshops Attended (with Optional Images) -->
+        <div class="profile-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+            <h4 style="font-weight: 700;">🛠️ Workshops Attended (with Images)</h4>
+            <button id="btn-add-workshop-modal" class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-workshop').classList.add('active')">+ Add Workshop</button>
+          </div>
+          <div id="workshops-list"></div>
+        </div>
+      </div>
+
+      <!-- Seminars / Events (Organized vs Participated with Optional Images) -->
+      <div class="profile-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+          <h4 style="font-weight: 700;">🎤 Seminars & Events (with Event Photos)</h4>
+          <button id="btn-add-seminar-modal" class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-seminar').classList.add('active')">+ Add Seminar</button>
+        </div>
+        <div class="form-grid-2">
+          <div>
+            <h5 style="color: #60a5fa; font-size: 0.88rem; margin-bottom: 0.5rem;">Organized by Student</h5>
+            <div id="seminars-organized-list"></div>
+          </div>
+          <div>
+            <h5 style="color: #34d399; font-size: 0.88rem; margin-bottom: 0.5rem;">Attended / Participated</h5>
+            <div id="seminars-participated-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: SUBMISSIONS & STATUS TRACKING -->
+    <section id="panel-submissions-status" class="student-tab-panel hidden">
+      <div style="margin-bottom: 1.25rem;">
+        <h3 style="font-size: 1.25rem; font-weight: 700;">Submission Verification & Faculty Status</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">Real-time tracking of all uploaded certificates, internship proofs, and assignment submissions.</p>
+      </div>
+
+      <div class="table-container">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>Title & Faculty Feedback</th>
+              <th>Category</th>
+              <th>Issuing Organization</th>
+              <th>Proof Document</th>
+              <th>Status</th>
+              <th>Submitted Date</th>
+            </tr>
+          </thead>
+          <tbody id="student-submissions-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 7: UNIVERSITY REQUIREMENTS -->
+    <section id="panel-requirements" class="student-tab-panel hidden">
+      <div style="margin-bottom: 1.25rem;">
+        <h3 style="font-size: 1.25rem; font-weight: 700;">Mandatory VGU Academic Requirements</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">Official submission requirements published by Vivekananda Global University Deans and Faculty Advisors.</p>
+      </div>
+
+      <div id="student-requirements-list"></div>
+    </section>
+
+  </main>
+
+
+  <!-- =========================================================================
+       VIEW 3: ADMIN DASHBOARD (VGU)
+       ========================================================================= -->
+  <main id="view-admin-portal" class="app-view dashboard-container hidden">
+    
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">Total VGU Enrolled Students</div>
+        <div id="kpi-total-students" class="kpi-value">0</div>
+        <div class="kpi-sub">Across All Engineering Branches</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">University Avg CGPA</div>
+        <div id="kpi-avg-cgpa" class="kpi-value">0.00</div>
+        <div class="kpi-sub">★ Continuous Academic Performance</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Overall Avg Attendance</div>
+        <div id="kpi-avg-att" class="kpi-value">0%</div>
+        <div class="kpi-sub">Biometric & Classroom Records</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Avg Profile Completeness</div>
+        <div id="kpi-avg-comp" class="kpi-value">0%</div>
+        <div class="kpi-sub">Placement Readiness Index</div>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--border-subtle); margin-bottom: 1.5rem;">
+      <nav class="portal-tabs" style="border: none; margin: 0;">
+        <button class="tab-btn active" data-admin-tab="admin-panel-students">👥 Student Directory & Approvals</button>
+        <button class="tab-btn" data-admin-tab="admin-panel-submissions">
+          ⚖️ Verification Queue <span id="admin-pending-badge" class="status-pill status-pending" style="margin-left: 0.3rem;">0 Pending</span>
+        </button>
+        <button class="tab-btn" data-admin-tab="admin-panel-requirements">📢 Requirements & Bulk Mailer</button>
+        <button class="tab-btn" data-admin-tab="admin-panel-analytics">📈 Analytics & Export</button>
+      </nav>
+
+      <div style="display: flex; gap: 0.75rem; margin-bottom: 0.25rem;">
+        <button class="btn btn-secondary btn-sm" onclick="window.open('/api/admin/export', '_blank')">📥 Export VGU CSV</button>
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('modal-create-requirement').classList.add('active')">+ New Requirement</button>
+      </div>
+    </div>
+
+    <!-- TAB 1: STUDENT DIRECTORY & MULTI-FILTERS -->
+    <section id="admin-panel-students" class="admin-tab-panel">
+      <div class="admin-filter-bar">
+        
+        <div class="filter-group">
+          <label class="filter-label" for="admin-filter-search">Search Student</label>
+          <input type="text" id="admin-filter-search" class="form-input" placeholder="Enrollment or Name...">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="admin-filter-verification">Verification Status</label>
+          <select id="admin-filter-verification" class="form-select">
+            <option value="All">All Profiles</option>
+            <option value="Pending">⏳ Pending Approval</option>
+            <option value="Verified">🛡️ Verified</option>
+            <option value="Rejected">❌ Rejected</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="admin-filter-branch">Branch</label>
+          <select id="admin-filter-branch" class="form-select">
+            <option value="All">All Branches</option>
+            <option value="Software Engineering">Software Engineering</option>
+            <option value="AIML">AIML</option>
+            <option value="Data Science">Data Science</option>
+            <option value="Cyber Security">Cyber Security</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="admin-filter-year">Academic Year</label>
+          <select id="admin-filter-year" class="form-select">
+            <option value="All">All Years</option>
+            <option value="1st Year">1st Year</option>
+            <option value="2nd Year">2nd Year</option>
+            <option value="3rd Year">3rd Year</option>
+            <option value="4th Year">4th Year</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="admin-filter-cgpa">Min CGPA: <span id="cgpa-val-display" class="slider-val">Any</span></label>
+          <input type="range" id="admin-filter-cgpa" min="0" max="10" step="0.5" value="0" style="width: 100%; accent-color: var(--primary);">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="admin-filter-att">Min Attendance: <span id="att-val-display" class="slider-val">Any</span></label>
+          <input type="range" id="admin-filter-att" min="0" max="100" step="5" value="0" style="width: 100%; accent-color: var(--emerald);">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="admin-filter-certs">Certificates Count</label>
+          <select id="admin-filter-certs" class="form-select">
+            <option value="">Any Count</option>
+            <option value="1">At least 1 certificate</option>
+            <option value="2">At least 2 certificates</option>
+            <option value="3">3+ certificates</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="admin-filter-internship">Internship Status</label>
+          <select id="admin-filter-internship" class="form-select">
+            <option value="All">All Statuses</option>
+            <option value="completed">Completed / Approved</option>
+            <option value="pending">Pending Verification</option>
+            <option value="not_started">Not Started / Missing</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">&nbsp;</label>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="AdminController.resetFilters()">Reset Filters</button>
+        </div>
+
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <div style="font-size: 0.9rem; color: var(--text-secondary);">
+          Showing: <strong id="admin-student-count" style="color: #ffffff;">0 Students</strong>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>Student Dossier</th>
+              <th>Branch</th>
+              <th>Year & Sem</th>
+              <th>CGPA</th>
+              <th>Attendance</th>
+              <th>Certificates</th>
+              <th>Completeness</th>
+              <th>Profile Verification</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="admin-students-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 2: SUBMISSIONS VERIFICATION QUEUE -->
+    <section id="admin-panel-submissions" class="admin-tab-panel hidden">
+      <div class="admin-filter-bar" style="grid-template-columns: 200px 200px 1fr;">
+        <div class="filter-group">
+          <label class="filter-label" for="admin-sub-status-filter">Review Status</label>
+          <select id="admin-sub-status-filter" class="form-select">
+            <option value="All">All Statuses</option>
+            <option value="Pending" selected>Pending Review</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Submission Title</th>
+              <th>Type</th>
+              <th>Organization</th>
+              <th>Uploaded File</th>
+              <th>Status</th>
+              <th>Review Action</th>
+            </tr>
+          </thead>
+          <tbody id="admin-submissions-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 3: ACADEMIC REQUIREMENTS & BULK MAILER -->
+    <section id="admin-panel-requirements" class="admin-tab-panel hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+          <h3 style="font-size: 1.25rem; font-weight: 700;">VGU Academic Deadlines & Automated Bulk Reminders</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Publish submission requirements and notify all non-submitting students with automated 1-click bulk reminder emails.</p>
+        </div>
+      </div>
+
+      <div id="admin-requirements-container"></div>
+    </section>
+
+    <!-- TAB 4: ANALYTICS & EXPORT -->
+    <section id="admin-panel-analytics" class="admin-tab-panel hidden">
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Profile Completeness Rate Distribution</div>
+          </div>
+          <div id="chart-completeness-dist"></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Branch-Wise Average CGPA Performance</div>
+          </div>
+          <div id="chart-branch-stats"></div>
+        </div>
+      </div>
+
+      <div class="chart-card" style="margin-bottom: 2rem;">
+        <div class="chart-header">
+          <div class="chart-title">Most Common Technical Skills Across VGU Students</div>
+        </div>
+        <div id="chart-top-skills" style="display: flex; flex-wrap: wrap; gap: 0.6rem; padding: 0.5rem 0;"></div>
+      </div>
+
+      <div class="profile-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h4 style="font-weight: 700; font-size: 1.05rem;">Export Complete VGU Student Dossier Database</h4>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Downloads all student records, CGPAs, attendance percentages, verification statuses, and credentials formatted for Excel analysis.</p>
+        </div>
+        <button class="btn btn-success" onclick="window.open('/api/admin/export', '_blank')">📥 Download Full Database CSV</button>
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- =========================================================================
+       MODALS
+       ========================================================================= -->
+
+  <!-- STUDENT REGISTRATION MODAL -->
+  <div id="modal-student-register" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 720px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">📝 VGU Student Registration</h3>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.2rem;">New profiles are reviewed and verified by administration before full edit access is unlocked.</p>
+        </div>
+        <button class="modal-close">&times;</button>
+      </div>
+
+      <form id="form-student-register">
+        <div class="form-grid-2" style="margin-bottom: 0.85rem;">
+          <div class="form-group">
+            <label class="form-label" for="reg-enrollment">Enrollment Number <span class="required">*</span></label>
+            <input type="text" id="reg-enrollment" class="form-input" placeholder="e.g. EN2024SE101" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-name">Full Legal Name <span class="required">*</span></label>
+            <input type="text" id="reg-name" class="form-input" placeholder="e.g. Rahul Sharma" required>
+          </div>
+        </div>
+
+        <div class="form-grid-2" style="margin-bottom: 0.85rem;">
+          <div class="form-group">
+            <label class="form-label" for="reg-email">Email Address <span class="required">*</span></label>
+            <input type="email" id="reg-email" class="form-input" placeholder="rahul@vgu.ac.in" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-mobile">Mobile Number <span class="required">*</span></label>
+            <input type="tel" id="reg-mobile" class="form-input" placeholder="10-digit mobile" required>
+          </div>
+        </div>
+
+        <div class="form-grid-3" style="margin-bottom: 0.85rem;">
+          <div class="form-group">
+            <label class="form-label" for="reg-branch">Branch <span class="required">*</span></label>
+            <select id="reg-branch" class="form-select" required>
+              <option value="Software Engineering">Software Engineering</option>
+              <option value="AIML">AIML</option>
+              <option value="Data Science">Data Science</option>
+              <option value="Cyber Security">Cyber Security</option>
+              <option value="Electronics & Communication">Electronics & Communication</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-program">Program <span class="required">*</span></label>
+            <select id="reg-program" class="form-select" required>
+              <option value="B.Tech">B.Tech</option>
+              <option value="M.Tech">M.Tech</option>
+              <option value="BCA">BCA</option>
+              <option value="MCA">MCA</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-dob">Date of Birth <span class="required">*</span></label>
+            <input type="date" id="reg-dob" class="form-input" required>
+          </div>
+        </div>
+
+        <div class="form-grid-4" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1rem;">
+          <div class="form-group">
+            <label class="form-label" for="reg-class">Class</label>
+            <input type="text" id="reg-class" class="form-input" placeholder="SE-2A" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-section">Section</label>
+            <input type="text" id="reg-section" class="form-input" placeholder="Section A" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-semester">Semester</label>
+            <select id="reg-semester" class="form-select" required>
+              <option value="1">Sem 1</option>
+              <option value="2">Sem 2</option>
+              <option value="3">Sem 3</option>
+              <option value="4">Sem 4</option>
+              <option value="5">Sem 5</option>
+              <option value="6">Sem 6</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-year">Year</label>
+            <select id="reg-year" class="form-select" required>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid-2" style="margin-bottom: 1.5rem;">
+          <div class="form-group">
+            <label class="form-label" for="reg-password">Password (min 6 chars) <span class="required">*</span></label>
+            <input type="password" id="reg-password" class="form-input" placeholder="••••••••" required minlength="6">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-confirm-password">Confirm Password <span class="required">*</span></label>
+            <input type="password" id="reg-confirm-password" class="form-input" placeholder="••••••••" required minlength="6">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-success">Complete Registration →</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- FORGOT PASSWORD OTP MODAL -->
+  <div id="modal-forgot-password" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">🔐 VGU Mobile OTP Password Recovery</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      
+      <input type="hidden" id="fp-role">
+
+      <div id="fp-step-1">
+        <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+          Enter your registered ID. A 6-digit one-time password (OTP) will be dispatched to your linked mobile number.
+        </p>
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" id="fp-id-label" for="fp-identifier">Enrollment Number</label>
+          <input type="text" id="fp-identifier" class="form-input" placeholder="e.g. EN2023SE042">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="App.requestOtp()">Send OTP Code →</button>
+        </div>
+      </div>
+
+      <div id="fp-step-2" class="hidden">
+        <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Enter the 6-digit OTP sent to your registered mobile <strong id="fp-masked-mobile" style="color: #60a5fa;">+91 ******</strong>.
+        </p>
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" for="fp-otp-input">6-Digit Verification Code</label>
+          <input type="text" id="fp-otp-input" class="form-input" maxlength="6" style="font-size: 1.4rem; letter-spacing: 0.3em; text-align: center; font-family: var(--font-mono);" placeholder="------">
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <button type="button" class="btn-link" onclick="App.requestOtp()">Resend OTP Code</button>
+          <div style="display: flex; gap: 0.75rem;">
+            <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="App.verifyOtp()">Verify OTP Code</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="fp-step-3" class="hidden">
+        <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+          OTP verified! Choose a strong new password for your VGU academic account.
+        </p>
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" for="fp-new-pw">New Password (min 6 characters)</label>
+          <input type="password" id="fp-new-pw" class="form-input" placeholder="••••••••">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button type="button" class="btn btn-primary" onclick="App.resetPassword()">Set New Password & Sign In</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- SEMESTER MARKS MODAL -->
+  <div id="modal-marks" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">📊 Enter Semester SGPA & Marksheet</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <input type="hidden" id="modal-marks-sem">
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label" for="modal-marks-sgpa">Semester SGPA (0.00 - 10.00)</label>
+        <input type="number" id="modal-marks-sgpa" class="form-input" step="0.01" min="0" max="10" placeholder="e.g. 8.75">
+      </div>
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label class="form-label" for="modal-marks-file">Upload Official Marksheet (PDF/Image)</label>
+        <input type="file" id="modal-marks-file" class="form-input" accept=".pdf,image/*">
+        <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Saved hierarchically under: <code>.../marks/</code></span>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="StudentController.submitMarks()">Save SGPA</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- CERTIFICATE UPLOAD MODAL -->
+  <div id="modal-certificate" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">📜 Upload Verified Certificate</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label" for="cert-title">Certificate Name / Title <span class="required">*</span></label>
+        <input type="text" id="cert-title" class="form-input" placeholder="e.g. AWS Certified Solutions Architect">
+      </div>
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label" for="cert-issuer">Issuing Organization</label>
+        <input type="text" id="cert-issuer" class="form-input" placeholder="e.g. Amazon Web Services, Coursera, IBM">
+      </div>
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label class="form-label" for="cert-file">Upload Certificate File (PDF / Image)</label>
+        <input type="file" id="cert-file" class="form-input" accept=".pdf,image/*">
+        <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Saved hierarchically under: <code>.../certificates/</code></span>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="StudentController.submitCertificate()">Submit For Faculty Review</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ADD PROJECT MODAL -->
+  <div id="modal-project" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">🚀 Add Engineering Project</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="form-group" style="margin-bottom: 0.85rem;">
+        <label class="form-label" for="proj-title">Project Title <span class="required">*</span></label>
+        <input type="text" id="proj-title" class="form-input" placeholder="e.g. AI-Powered Smart Parking System">
+      </div>
+      <div class="form-group" style="margin-bottom: 0.85rem;">
+        <label class="form-label" for="proj-tech">Tech Stack</label>
+        <input type="text" id="proj-tech" class="form-input" placeholder="e.g. React, Node.js, Python, PostgreSQL">
+      </div>
+      <div class="form-grid-2" style="margin-bottom: 0.85rem;">
+        <div class="form-group">
+          <label class="form-label" for="proj-demo">Live Demo Link</label>
+          <input type="url" id="proj-demo" class="form-input" placeholder="https://demo.app">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="proj-repo">Source Code (GitHub)</label>
+          <input type="url" id="proj-repo" class="form-input" placeholder="https://github.com/user/project">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label class="form-label" for="proj-desc">Project Description</label>
+        <textarea id="proj-desc" class="form-textarea" rows="3" placeholder="Explain the problem solved, architecture, and key outcomes..."></textarea>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="
+          const title = document.getElementById('proj-title').value.trim();
+          if(!title) { Toast.warning('Project title is required.'); return; }
+          const newProj = {
+            id: Date.now(),
+            title,
+            tech_stack: document.getElementById('proj-tech').value.trim(),
+            demo_url: document.getElementById('proj-demo').value.trim(),
+            repo_url: document.getElementById('proj-repo').value.trim(),
+            description: document.getElementById('proj-desc').value.trim()
+          };
+          const curProjects = StudentController.extras.projects || [];
+          curProjects.push(newProj);
+          API.saveStudentSection('projects', StudentController.currentStudent.identifier, curProjects).then(res => {
+            StudentController.extras.projects = curProjects;
+            StudentController.renderProjectsList();
+            StudentController.profileData.completeness_pct = res.completeness.percentage;
+            StudentController.renderCompleteness();
+            document.getElementById('modal-project').classList.remove('active');
+            Toast.success('Project added successfully!');
+          });
+        ">Add Project</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ADD HACKATHON MODAL -->
+  <div id="modal-hackathon" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">🏆 Add Hackathon Experience</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="form-group" style="margin-bottom: 0.85rem;">
+        <label class="form-label" for="hack-name">Hackathon Name <span class="required">*</span></label>
+        <input type="text" id="hack-name" class="form-input" placeholder="e.g. Smart India Hackathon 2026">
+      </div>
+      <div class="form-grid-2" style="margin-bottom: 0.85rem;">
+        <div class="form-group">
+          <label class="form-label" for="hack-role">Your Role</label>
+          <input type="text" id="hack-role" class="form-input" placeholder="e.g. Team Lead / ML Developer">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="hack-result">Award / Result</label>
+          <input type="text" id="hack-result" class="form-input" placeholder="e.g. 1st Place / Finalist">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label class="form-label" for="hack-project">Project Built</label>
+        <input type="text" id="hack-project" class="form-input" placeholder="e.g. MediScan AI">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="
+          const name = document.getElementById('hack-name').value.trim();
+          if(!name) { Toast.warning('Hackathon name is required.'); return; }
+          const item = {
+            id: Date.now(),
+            name,
+            role: document.getElementById('hack-role').value.trim(),
+            result: document.getElementById('hack-result').value.trim(),
+            project_name: document.getElementById('hack-project').value.trim(),
+            date: new Date().toISOString().split('T')[0]
+          };
+          const cur = StudentController.extras.hackathons || [];
+          cur.push(item);
+          API.saveStudentSection('hackathons', StudentController.currentStudent.identifier, cur).then(res => {
+            StudentController.extras.hackathons = cur;
+            StudentController.renderHackathonsList();
+            StudentController.profileData.completeness_pct = res.completeness.percentage;
+            StudentController.renderCompleteness();
+            document.getElementById('modal-hackathon').classList.remove('active');
+            Toast.success('Hackathon logged!');
+          });
+        ">Save Hackathon</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- WORKSHOPS MODAL (WITH OPTIONAL IMAGE UPLOAD) -->
+  <div id="modal-workshop" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">🛠️ Log Workshop (with Optional Image)</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="form-group" style="margin-bottom: 0.85rem;">
+        <label class="form-label" for="ws-topic">Workshop Topic <span class="required">*</span></label>
+        <input type="text" id="ws-topic" class="form-input" placeholder="e.g. Generative AI & LLM Deployment">
+      </div>
+      <div class="form-group" style="margin-bottom: 0.85rem;">
+        <label class="form-label" for="ws-conducted">Conducted By / Organization</label>
+        <input type="text" id="ws-conducted" class="form-input" placeholder="e.g. Google Developer Group VGU">
+      </div>
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label class="form-label" for="ws-image-file">Optional Workshop / Event Image (JPG/PNG)</label>
+        <input type="file" id="ws-image-file" class="form-input" accept="image/*">
+        <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Optional: attach a photo of the workshop session or group picture.</span>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="StudentController.submitWorkshop()">Save Workshop</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- SEMINARS MODAL (WITH OPTIONAL IMAGE UPLOAD) -->
+  <div id="modal-seminar" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">🎤 Log Seminar / Event (with Optional Image)</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="form-group" style="margin-bottom: 0.85rem;">
+        <label class="form-label" for="sem-type">Participation Type</label>
+        <select id="sem-type" class="form-select">
+          <option value="organized">Organized by Student (Lead / Core Team)</option>
+          <option value="participated">Attended / Participated</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom: 0.85rem;">
+        <label class="form-label" for="sem-title">Seminar / Event Title <span class="required">*</span></label>
+        <input type="text" id="sem-title" class="form-input" placeholder="e.g. National Cyber Security Summit 2026">
+      </div>
+      <div class="form-group" style="margin-bottom: 0.85rem;">
+        <label class="form-label" for="sem-role-org">Role / Organizer Name</label>
+        <input type="text" id="sem-role-org" class="form-input" placeholder="e.g. Lead Coordinator / IEEE Computer Society">
+      </div>
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label class="form-label" for="sem-image-file">Optional Event Photo / Picture (JPG/PNG)</label>
+        <input type="file" id="sem-image-file" class="form-input" accept="image/*">
+        <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Optional: attach a picture from the seminar stage or podium.</span>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="StudentController.submitSeminar()">Save Seminar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- SUBMIT REQUIREMENT PROOF MODAL -->
+  <div id="modal-requirement-submit" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">📤 Submit Academic Requirement Proof</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <input type="hidden" id="req-modal-id">
+      <div style="margin-bottom: 1rem;">
+        <strong id="req-modal-title-display" style="color: #60a5fa; font-size: 1.1rem;"></strong>
+      </div>
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label" for="req-modal-notes">Submission Remarks / Organization</label>
+        <input type="text" id="req-modal-notes" class="form-input" placeholder="e.g. 8-week completion letter signed by mentor">
+      </div>
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label class="form-label" for="req-modal-file">Upload Proof Document (PDF/DOCX/Image) <span class="required">*</span></label>
+        <input type="file" id="req-modal-file" class="form-input" accept=".pdf,.doc,.docx,image/*" required>
+        <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Saved hierarchically under: <code>.../other_uploaded_files/</code></span>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="StudentController.submitRequirementProof()">Submit Proof Document</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ADMIN: REJECT SUBMISSION WITH COMMENTS MODAL -->
+  <div id="modal-reject-submission" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">❌ Reject Submission & Provide Feedback</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <input type="hidden" id="reject-sub-id">
+      <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+        You are rejecting: <strong id="reject-sub-title" style="color: #ffffff;"></strong>
+      </p>
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label class="form-label" for="reject-sub-comment">Feedback / Reason for Rejection (Visible to Student)</label>
+        <textarea id="reject-sub-comment" class="form-textarea" rows="3" placeholder="e.g. Document is missing official corporate seal or signature. Please re-upload verified document."></textarea>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="AdminController.submitRejection()">Confirm Rejection</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ADMIN: CREATE NEW REQUIREMENT MODAL -->
+  <div id="modal-create-requirement" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">📢 Add VGU Academic Requirement</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="form-create-requirement">
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label class="form-label" for="new-req-title">Requirement Title <span class="required">*</span></label>
+          <input type="text" id="new-req-title" class="form-input" placeholder="e.g. Cloud Computing Lab Assignment 3" required>
+        </div>
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label class="form-label" for="new-req-desc">Instructions & Description</label>
+          <textarea id="new-req-desc" class="form-textarea" rows="2" placeholder="Explain what students must upload..."></textarea>
+        </div>
+        <div class="form-grid-2" style="margin-bottom: 0.85rem;">
+          <div class="form-group">
+            <label class="form-label" for="new-req-branch">Target Branch</label>
+            <select id="new-req-branch" class="form-select">
+              <option value="All">All Branches</option>
+              <option value="Software Engineering">Software Engineering</option>
+              <option value="AIML">AIML</option>
+              <option value="Data Science">Data Science</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-req-year">Target Year</label>
+            <select id="new-req-year" class="form-select">
+              <option value="All">All Years</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label class="form-label" for="new-req-deadline">Submission Deadline <span class="required">*</span></label>
+          <input type="date" id="new-req-deadline" class="form-input" required>
+        </div>
+        <!-- Compulsory toggle -->
+        <div style="display: flex; align-items: flex-start; gap: 0.75rem; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.28); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1.25rem;">
+          <input type="checkbox" id="new-req-compulsory" style="width: 18px; height: 18px; accent-color: #ef4444; cursor: pointer; flex-shrink: 0; margin-top: 2px;">
+          <div>
+            <label for="new-req-compulsory" style="font-weight: 700; color: #f87171; cursor: pointer; font-size: 0.9rem;">&#128308; Mark as Compulsory Requirement</label>
+            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.2rem;">Compulsory requirements are highlighted prominently for students and indicate mandatory programme milestones that must be completed.</div>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Publish Requirement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ADMIN: NON-SUBMITTERS FILTER MODAL -->
+  <div id="modal-non-submitters" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 800px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">🔍 Non-Submitting Students</h3>
+          <div id="modal-ns-title" style="font-size: 0.85rem; color: #60a5fa; margin-top: 0.2rem;"></div>
+        </div>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <span id="modal-ns-count" class="status-pill status-rejected">0 Pending</span>
+        <button id="modal-ns-mail-btn" class="btn btn-primary btn-sm">📧 Send Bulk Email Reminders Now</button>
+      </div>
+      <div class="table-container" style="max-height: 50vh; overflow-y: auto;">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Enrollment No</th>
+              <th>Branch / Sec</th>
+              <th>Email</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="modal-ns-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ADMIN: OUTBOX / BULK EMAIL DISPATCHED PREVIEW MODAL -->
+  <div id="modal-outbox-preview" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 700px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">📬 Bulk Reminder Emails Dispatched</h3>
+          <div id="outbox-modal-title" style="font-size: 0.85rem; color: #60a5fa; margin-top: 0.2rem;"></div>
+        </div>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div id="outbox-modal-count" style="font-size: 0.9rem; color: #34d399; margin-bottom: 1rem; font-weight: 600;"></div>
+      <div id="outbox-modal-list" style="max-height: 50vh; overflow-y: auto;"></div>
+      <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
+        <button type="button" class="btn btn-secondary modal-cancel">Close Outbox</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ADMIN: STUDENT DOSSIER INSPECTION MODAL -->
+  <div id="modal-student-dossier" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 780px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <img id="dossier-avatar" src="/static/images/avatars/default.svg" alt="Student" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);">
+          <div>
+            <h3 id="dossier-name" class="modal-title">Student Name</h3>
+            <div id="dossier-enrollment" style="font-family: var(--font-mono); font-size: 0.82rem; color: #60a5fa;"></div>
+          </div>
+        </div>
+        <button class="modal-close">&times;</button>
+      </div>
+
+      <!-- Verification Actions Bar inside dossier -->
+      <div id="dossier-verification-actions"></div>
+
+      <!-- Dossier Metadata Pill strip -->
+      <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; background: rgba(15,23,42,0.6); padding: 0.85rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; font-size: 0.85rem;">
+        <div>Branch: <strong id="dossier-branch"></strong></div>
+        <div>CGPA: <strong id="dossier-cgpa" style="color: #60a5fa;"></strong></div>
+        <div>Attendance: <strong id="dossier-attendance" style="color: #34d399;"></strong></div>
+        <div>Email: <span id="dossier-email" style="color: var(--text-light);"></span></div>
+        <div>Mobile: <span id="dossier-mobile" style="color: var(--text-light);"></span></div>
+      </div>
+
+      <div style="margin-bottom: 1.25rem;">
+        <a id="dossier-resume-btn" href="#" target="_blank" class="btn btn-primary btn-sm" style="display: none;">📄 Download Full Resume</a>
+      </div>
+
+      <!-- Semester Marks -->
+      <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;">Semester Grades & Records</h4>
+      <div id="dossier-marks-list" style="margin-bottom: 1.5rem;"></div>
+
+      <!-- Submissions & Verifications -->
+      <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;">Uploaded Credentials & Documents</h4>
+      <div id="dossier-subs-list"></div>
+
+    </div>
+  </div>
+
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Application Scripts -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/student.js"></script>
+  <script src="/static/js/admin.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

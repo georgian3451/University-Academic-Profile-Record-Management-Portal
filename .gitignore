@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Database
+*.db
+*.sqlite3
+
+# User Uploads (Student resumes, certificates, and personal files)
+uploads/Students/**/marks/*
+uploads/Students/**/certificates/*
+uploads/Students/**/resume/*
+uploads/Students/**/other_uploaded_files/*
+uploads/Students/**/basic_details/*
+!uploads/Students/**/.info
+
+# Environment & IDE
+.env
+.env.*
+.vscode/
+.idea/
+*.sublime-workspace
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

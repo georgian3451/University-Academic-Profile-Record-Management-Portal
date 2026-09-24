@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="vguGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="50%" stop-color="#1d4ed8" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="vguGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+  </defs>
+  <!-- Shield Outline -->
+  <path d="M60,8 L102,24 C102,70 60,112 60,112 C60,112 18,70 18,24 Z" fill="url(#vguGrad)" stroke="#60a5fa" stroke-width="3.5" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.4))"/>
+  <!-- Inner Rim -->
+  <path d="M60,16 L94,29 C94,66 60,102 60,102 C60,102 26,66 26,29 Z" fill="none" stroke="#fbbf24" stroke-width="1.8" stroke-dasharray="4,2" opacity="0.85"/>
+  <!-- VGU Letters Banner -->
+  <rect x="36" y="32" width="48" height="22" rx="4" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="60" y="48" font-family="'Segoe UI', -apple-system, sans-serif" font-size="14" font-weight="900" fill="#fbbf24" text-anchor="middle" letter-spacing="0.1em">VGU</text>
+  <!-- Open Academic Book -->
+  <path d="M38,64 C46,60 56,60 60,65 C64,60 74,60 82,64 L82,78 C74,74 64,74 60,79 C56,74 46,74 38,78 Z" fill="#ffffff" opacity="0.95"/>
+  <path d="M60,65 L60,79" stroke="#1e293b" stroke-width="1.5"/>
+  <!-- Graduation Torch/Flame -->
+  <path d="M60,20 Q63,25 60,29 Q57,25 60,20 Z" fill="url(#vguGold)"/>
+  <!-- University Star -->
+  <polygon points="60,88 62,92 66,92 63,95 64,99 60,96 56,99 57,95 54,92 58,92" fill="#fbbf24"/>
+</svg>
