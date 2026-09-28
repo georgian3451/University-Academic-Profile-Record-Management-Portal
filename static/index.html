@@ -174,17 +174,40 @@
 
     <!-- Student Navigation Tabs -->
     <nav class="portal-tabs" aria-label="Student Navigation Tabs">
-      <button class="tab-btn active" data-student-tab="panel-basic-details">📋 Basic Details (Compulsory)</button>
+      <button class="tab-btn active" data-student-tab="panel-announcements">📣 Announcements <span id="student-announcements-badge" class="status-pill status-approved" style="font-size: 0.68rem; margin-left: 0.25rem;">New</span></button>
+      <button class="tab-btn" data-student-tab="panel-basic-details">📋 Basic Details (Compulsory)</button>
       <button class="tab-btn" data-student-tab="panel-academics">📊 Semester Marks & CGPA</button>
       <button class="tab-btn" data-student-tab="panel-skills-roles">💡 Skills & Roles</button>
       <button class="tab-btn" data-student-tab="panel-projects-work">🚀 Projects & Resume</button>
       <button class="tab-btn" data-student-tab="panel-certifications">📜 Certificates & Events</button>
+      <button class="tab-btn" data-student-tab="panel-campus-events">🎪 Campus Events & Hackathons</button>
       <button class="tab-btn" data-student-tab="panel-submissions-status">⏳ Submissions & Reviews</button>
       <button class="tab-btn" data-student-tab="panel-requirements">📢 VGU Requirements</button>
+      <button class="tab-btn" data-student-tab="panel-student-support">🎧 Support &amp; Queries</button>
     </nav>
 
+    <!-- TAB 0: ANNOUNCEMENTS SECTION -->
+    <section id="panel-announcements" class="student-tab-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h3 style="font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+            <span>📣 University Announcements &amp; Notice Board</span>
+            <span class="status-pill status-approved" style="font-size: 0.72rem;">Live Sync</span>
+          </h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">
+            Official circulars, new academic requirements, seminars, and hackathons published by Vivekananda Global University.
+          </p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="StudentController.loadAnnouncements()">🔄 Refresh Board</button>
+      </div>
+
+      <div id="student-announcements-container" style="display: flex; flex-direction: column; gap: 1rem;">
+        <!-- Dynamically rendered announcements -->
+      </div>
+    </section>
+
     <!-- TAB 1: COMPULSORY BASIC DETAILS FORM -->
-    <section id="panel-basic-details" class="student-tab-panel">
+    <section id="panel-basic-details" class="student-tab-panel hidden">
       <form id="student-basic-form" class="dashboard-grid">
         
         <!-- Left: Photo Upload Card -->
@@ -482,6 +505,107 @@
       <div id="student-requirements-list"></div>
     </section>
 
+    <!-- TAB 8: CAMPUS EVENTS & HACKATHONS -->
+    <section id="panel-campus-events" class="student-tab-panel hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h3 style="font-size: 1.25rem; font-weight: 700;">🎪 Seminars, Workshops, Hackathons &amp; Events</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Explore university-sanctioned events, hackathons, guest seminars, and student-organized workshops.</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <select id="student-event-filter" class="form-select" style="min-width: 140px;" onchange="StudentController.filterEvents(this.value)">
+            <option value="All">All Categories</option>
+            <option value="Hackathon">🏆 Hackathons</option>
+            <option value="Workshop">🛠️ Workshops</option>
+            <option value="Seminar">🎤 Seminars</option>
+            <option value="Event">🎪 General Events</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="student-events-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem;">
+        <!-- Dynamically rendered events -->
+      </div>
+    </section>
+
+    <!-- TAB 9: SUPPORT & RAISE A QUERY -->
+    <section id="panel-student-support" class="student-tab-panel hidden">
+      <div style="margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.25rem; font-weight: 700;">🎧 Student Academic Helpdesk &amp; Support</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">Browse FAQs for login/portal issues, or raise an official inquiry for attendance waivers, deadline extensions, and event credits.</p>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Left: Raise a Query Form -->
+        <div class="profile-card">
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+            <span style="font-size: 1.3rem;">✍️</span>
+            <div>
+              <h4 style="font-weight: 700; font-size: 1.05rem;">Raise an Academic Query</h4>
+              <p style="font-size: 0.78rem; color: var(--text-secondary);">Direct submission to VGU Administration for attendance, deadlines &amp; hackathons.</p>
+            </div>
+          </div>
+
+          <form id="form-student-raise-query">
+            <div class="form-group" style="margin-bottom: 0.85rem;">
+              <label class="form-label" for="query-category">Query Category <span class="required">*</span></label>
+              <select id="query-category" class="form-select" required>
+                <option value="Attendance Related">📅 Attendance Related (Hackathon / Event Duty)</option>
+                <option value="Assignment Deadline Extension">⏳ Assignment Deadline Extension</option>
+                <option value="Hackathon Participation">🏆 Hackathon Participation Approval</option>
+                <option value="Workshop / Seminar">🛠️ Workshop / Seminar Credit</option>
+                <option value="Login & Portal Issue">🔑 Login / Portal Access Issue</option>
+                <option value="Other">❓ Other (Specify Below)</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0.85rem;">
+              <label class="form-label" for="query-subject">Subject / Summary <span class="required">*</span></label>
+              <input type="text" id="query-subject" class="form-input" placeholder="e.g. Attendance compensation for Smart India Hackathon finals" required>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0.85rem;">
+              <label class="form-label" for="query-description">Detailed Description <span class="required">*</span></label>
+              <textarea id="query-description" class="form-textarea" rows="3" placeholder="Provide full details, relevant dates, affected courses, and context for administration review..." required></textarea>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label class="form-label" for="query-proof-file">Upload Proof / Supporting Documentation (PDF / Image)</label>
+              <input type="file" id="query-proof-file" class="form-input" accept=".pdf,image/*,.doc,.docx">
+              <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Attach hackathon pass, attendance slip, approval email, or certificate.</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">🚀 Submit Academic Query</button>
+          </form>
+        </div>
+
+        <!-- Right: FAQ Section & My Raised Queries Status -->
+        <div>
+          <!-- FAQs Accordion -->
+          <div class="profile-card" style="margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+              <h4 style="font-weight: 700; font-size: 1.05rem;">❓ Frequently Asked Questions</h4>
+              <span class="status-pill status-approved" style="font-size: 0.72rem;">Help Center</span>
+            </div>
+            <div id="student-faqs-container" style="display: flex; flex-direction: column; gap: 0.6rem;">
+              <!-- Dynamically populated FAQs -->
+            </div>
+          </div>
+
+          <!-- My Raised Queries History -->
+          <div class="profile-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+              <h4 style="font-weight: 700; font-size: 1.05rem;">📋 My Submitted Queries &amp; Admin Replies</h4>
+              <button class="btn btn-secondary btn-sm" onclick="StudentController.loadQueries()">Refresh</button>
+            </div>
+            <div id="student-queries-list">
+              <!-- Dynamically populated query tickets -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
 
@@ -568,6 +692,26 @@
             <option value="3rd Year">3rd Year</option>
             <option value="4th Year">4th Year</option>
           </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="admin-filter-section">Section</label>
+          <select id="admin-filter-section" class="form-select">
+            <option value="All">All Sections</option>
+            <option value="Section A">Section A</option>
+            <option value="Section B">Section B</option>
+            <option value="Section C">Section C</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="admin-filter-skill">Skill Filter</label>
+          <input type="text" id="admin-filter-skill" class="form-input" placeholder="e.g. Python, Docker, Leadership">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="admin-filter-activity">Activity / Hackathon / Club</label>
+          <input type="text" id="admin-filter-activity" class="form-input" placeholder="e.g. Hackathon, Workshop, IEEE">
         </div>
 
         <div class="filter-group">
@@ -1203,6 +1347,37 @@
             </select>
           </div>
         </div>
+
+        <!-- Eligibility Filters -->
+        <div style="background: rgba(59,130,246,0.07); border: 1px solid rgba(59,130,246,0.25); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 0.85rem;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: #60a5fa; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">🎯 Eligibility Filters (Optional)</div>
+          <div class="form-grid-2" style="margin-bottom: 0.6rem;">
+            <div class="form-group">
+              <label class="form-label" for="new-req-section">Target Section</label>
+              <select id="new-req-section" class="form-select">
+                <option value="All">All Sections</option>
+                <option value="Section A">Section A</option>
+                <option value="Section B">Section B</option>
+                <option value="Section C">Section C</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-req-min-cgpa">Min CGPA Required</label>
+              <input type="number" id="new-req-min-cgpa" class="form-input" step="0.1" min="0" max="10" placeholder="e.g. 6.5 (leave blank = all)">
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="new-req-min-att">Min Attendance (%) Required</label>
+              <input type="number" id="new-req-min-att" class="form-input" step="1" min="0" max="100" placeholder="e.g. 75 (leave blank = all)">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-req-skills">Required Skills (comma-separated)</label>
+              <input type="text" id="new-req-skills" class="form-input" placeholder="e.g. Python, Machine Learning">
+            </div>
+          </div>
+        </div>
+
         <div class="form-group" style="margin-bottom: 0.85rem;">
           <label class="form-label" for="new-req-deadline">Submission Deadline <span class="required">*</span></label>
           <input type="date" id="new-req-deadline" class="form-input" required>
@@ -1275,44 +1450,166 @@
   </div>
 
 
-  <!-- ADMIN: STUDENT DOSSIER INSPECTION MODAL -->
+  <!-- ADMIN: STUDENT DOSSIER INSPECTION MODAL (Tabbed, Comprehensive) -->
   <div id="modal-student-dossier" class="modal-backdrop">
-    <div class="modal-card" style="max-width: 780px;">
-      <div class="modal-header">
+    <div class="modal-card" style="max-width: 900px; max-height: 92vh; overflow: hidden; display: flex; flex-direction: column;">
+      <!-- Dossier Header -->
+      <div class="modal-header" style="flex-shrink: 0;">
         <div style="display: flex; align-items: center; gap: 1rem;">
-          <img id="dossier-avatar" src="/static/images/avatars/default.svg" alt="Student" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);">
+          <img id="dossier-avatar" src="/static/images/avatars/default.svg" alt="Student" style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);">
           <div>
             <h3 id="dossier-name" class="modal-title">Student Name</h3>
-            <div id="dossier-enrollment" style="font-family: var(--font-mono); font-size: 0.82rem; color: #60a5fa;"></div>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.2rem;">
+              <span id="dossier-enrollment" style="font-family: var(--font-mono); font-size: 0.82rem; color: #60a5fa;"></span>
+              <span id="dossier-student-code-badge" style="font-family: var(--font-mono); font-size: 0.78rem; color: #a78bfa; display:none;"></span>
+            </div>
           </div>
         </div>
         <button class="modal-close">&times;</button>
       </div>
 
-      <!-- Verification Actions Bar inside dossier -->
-      <div id="dossier-verification-actions"></div>
+      <!-- Dossier Tab Nav -->
+      <nav style="display: flex; gap: 0; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; overflow-x: auto;">
+        <button class="dossier-tab-btn active" data-dossier-tab="dtab-overview" style="padding: 0.65rem 1.1rem; background: none; border: none; border-bottom: 2px solid var(--primary); color: #fff; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap;">👤 Overview</button>
+        <button class="dossier-tab-btn" data-dossier-tab="dtab-skills" style="padding: 0.65rem 1.1rem; background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap;">💡 Skills &amp; Roles</button>
+        <button class="dossier-tab-btn" data-dossier-tab="dtab-activities" style="padding: 0.65rem 1.1rem; background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap;">🏆 Activities</button>
+        <button class="dossier-tab-btn" data-dossier-tab="dtab-submissions" style="padding: 0.65rem 1.1rem; background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap;">📋 Submissions &amp; Requirements</button>
+      </nav>
 
-      <!-- Dossier Metadata Pill strip -->
-      <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; background: rgba(15,23,42,0.6); padding: 0.85rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; font-size: 0.85rem;">
-        <div>Branch: <strong id="dossier-branch"></strong></div>
-        <div>CGPA: <strong id="dossier-cgpa" style="color: #60a5fa;"></strong></div>
-        <div>Attendance: <strong id="dossier-attendance" style="color: #34d399;"></strong></div>
-        <div>Email: <span id="dossier-email" style="color: var(--text-light);"></span></div>
-        <div>Mobile: <span id="dossier-mobile" style="color: var(--text-light);"></span></div>
-      </div>
+      <!-- Dossier Verification bar -->
+      <div id="dossier-verification-actions" style="flex-shrink: 0;"></div>
 
-      <div style="margin-bottom: 1.25rem;">
-        <a id="dossier-resume-btn" href="#" target="_blank" class="btn btn-primary btn-sm" style="display: none;">📄 Download Full Resume</a>
-      </div>
+      <!-- Tab Content (scrollable) -->
+      <div style="overflow-y: auto; flex: 1; padding: 1.25rem 1.5rem;">
 
-      <!-- Semester Marks -->
-      <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;">Semester Grades & Records</h4>
-      <div id="dossier-marks-list" style="margin-bottom: 1.5rem;"></div>
+        <!-- TAB: OVERVIEW -->
+        <div id="dtab-overview" class="dossier-tab-panel">
+          <!-- Info grid -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+            <div style="background: rgba(15,23,42,0.6); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.9rem 1rem;">
+              <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem;">Personal Info</div>
+              <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.85rem;">
+                <div>📧 Email: <span id="dossier-email" style="color: var(--text-light);"></span></div>
+                <div>📱 Mobile: <span id="dossier-mobile" style="color: var(--text-light);"></span></div>
+                <div>🎂 DOB: <span id="dossier-dob" style="color: var(--text-light);">—</span></div>
+                <div>🎓 Program: <span id="dossier-program" style="color: var(--text-light);">—</span></div>
+                <div>📅 Account Since: <span id="dossier-account-since" style="color: var(--text-light);">—</span></div>
+              </div>
+            </div>
+            <div style="background: rgba(15,23,42,0.6); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.9rem 1rem;">
+              <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem;">Academic Details</div>
+              <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.85rem;">
+                <div>🏛️ Branch: <strong id="dossier-branch" style="color: #c4b5fd;"></strong></div>
+                <div>📚 Class: <span id="dossier-class" style="color: var(--text-light);">—</span></div>
+                <div>🔖 Section: <span id="dossier-section" style="color: var(--text-light);">—</span></div>
+                <div>📅 Semester: <span id="dossier-semester" style="color: var(--text-light);">—</span></div>
+                <div>📆 Year: <span id="dossier-year" style="color: var(--text-light);">—</span></div>
+              </div>
+            </div>
+          </div>
 
-      <!-- Submissions & Verifications -->
-      <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;">Uploaded Credentials & Documents</h4>
-      <div id="dossier-subs-list"></div>
+          <!-- KPI Metrics -->
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.25rem;">
+            <div style="background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); border-radius: var(--radius-sm); padding: 0.85rem; text-align: center;">
+              <div style="font-size: 1.8rem; font-weight: 800; color: #60a5fa;" id="dossier-cgpa">—</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem;">CGPA</div>
+            </div>
+            <div style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); border-radius: var(--radius-sm); padding: 0.85rem; text-align: center;">
+              <div style="font-size: 1.8rem; font-weight: 800; color: #34d399;" id="dossier-attendance">—</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem;">Attendance</div>
+            </div>
+            <div style="background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.3); border-radius: var(--radius-sm); padding: 0.85rem; text-align: center;">
+              <div style="font-size: 1.8rem; font-weight: 800; color: #a78bfa;" id="dossier-completeness-val">—</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem;">Profile Complete</div>
+            </div>
+          </div>
 
+          <!-- Resume & Links -->
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+            <a id="dossier-resume-btn" href="#" target="_blank" class="btn btn-primary btn-sm" style="display: none;">📄 Download Resume</a>
+            <a id="dossier-linkedin-btn" href="#" target="_blank" class="btn btn-secondary btn-sm" style="display: none;">🔗 LinkedIn</a>
+            <a id="dossier-github-btn" href="#" target="_blank" class="btn btn-secondary btn-sm" style="display: none;">🐙 GitHub</a>
+            <a id="dossier-leetcode-btn" href="#" target="_blank" class="btn btn-secondary btn-sm" style="display: none;">💻 LeetCode</a>
+          </div>
+
+          <!-- Semester Marks -->
+          <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.5rem; color: #e2e8f0;">📊 Semester Grades</h4>
+          <div id="dossier-marks-list" style="margin-bottom: 1.5rem;"></div>
+
+          <!-- Projects -->
+          <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.5rem; color: #e2e8f0;">🚀 Projects</h4>
+          <div id="dossier-projects-list" style="margin-bottom: 0.5rem;"></div>
+        </div>
+
+        <!-- TAB: SKILLS & ROLES -->
+        <div id="dtab-skills" class="dossier-tab-panel" style="display:none;">
+          <!-- Student Code -->
+          <div id="dossier-student-code-section" style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); border-radius: var(--radius-sm); padding: 0.85rem 1rem; margin-bottom: 1.25rem; display: none;">
+            <div style="font-size: 0.72rem; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">Student Code / Unique Academic ID</div>
+            <div id="dossier-student-code" style="font-family: var(--font-mono); font-size: 1.05rem; font-weight: 700; color: #c4b5fd;"></div>
+          </div>
+
+          <!-- Core Skills (Soft) -->
+          <div style="margin-bottom: 1.25rem;">
+            <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.6rem; color: #fbbf24;">🌟 Core / Soft Skills</h4>
+            <div id="dossier-soft-skills" style="display: flex; flex-wrap: wrap; gap: 0.4rem;"></div>
+          </div>
+
+          <!-- Technical Skills -->
+          <div style="margin-bottom: 1.25rem;">
+            <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.6rem; color: #34d399;">⚙️ Technical Skills</h4>
+            <div id="dossier-technical-skills" style="display: flex; flex-wrap: wrap; gap: 0.4rem;"></div>
+          </div>
+
+          <!-- Target Roles -->
+          <div style="margin-bottom: 1.25rem;">
+            <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.6rem; color: #60a5fa;">🎯 Career Roles &amp; Responsibilities</h4>
+            <div id="dossier-target-roles" style="display: flex; flex-wrap: wrap; gap: 0.4rem;"></div>
+          </div>
+
+          <!-- No skills placeholder -->
+          <div id="dossier-no-skills-msg" style="display: none; color: var(--text-muted); font-size: 0.88rem; padding: 1rem 0;">No skills data available for this student yet.</div>
+        </div>
+
+        <!-- TAB: ACTIVITIES -->
+        <div id="dtab-activities" class="dossier-tab-panel" style="display:none;">
+          <!-- Hackathons -->
+          <div style="margin-bottom: 1.5rem;">
+            <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.6rem; color: #f59e0b;">🏆 Hackathons</h4>
+            <div id="dossier-hackathons-list"></div>
+          </div>
+
+          <!-- Workshops -->
+          <div style="margin-bottom: 1.5rem;">
+            <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.6rem; color: #34d399;">🛠️ Workshops</h4>
+            <div id="dossier-workshops-list"></div>
+          </div>
+
+          <!-- Seminars -->
+          <div style="margin-bottom: 1.5rem;">
+            <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.6rem; color: #60a5fa;">🎤 Seminars &amp; Conferences</h4>
+            <div id="dossier-seminars-list"></div>
+          </div>
+
+          <!-- Clubs & Other activities via skills 'extracurricular' -->
+          <div style="margin-bottom: 0.5rem;">
+            <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.6rem; color: #c4b5fd;">🎭 Clubs &amp; Other Activities</h4>
+            <div id="dossier-clubs-list"></div>
+          </div>
+        </div>
+
+        <!-- TAB: SUBMISSIONS & REQUIREMENTS -->
+        <div id="dtab-submissions" class="dossier-tab-panel" style="display:none;">
+          <!-- Requirements Status -->
+          <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.75rem; color: #e2e8f0;">📢 VGU Requirements Status</h4>
+          <div id="dossier-requirements-status" style="margin-bottom: 1.75rem;"></div>
+
+          <!-- Uploaded Docs -->
+          <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.75rem; color: #e2e8f0;">📂 Uploaded Credentials &amp; Documents</h4>
+          <div id="dossier-subs-list"></div>
+        </div>
+
+      </div><!-- end scrollable area -->
     </div>
   </div>
 
@@ -1325,5 +1622,3 @@
   <script src="/static/js/student.js"></script>
   <script src="/static/js/admin.js"></script>
   <script src="/static/js/app.js"></script>
-</body>
-</html>

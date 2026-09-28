@@ -95,13 +95,21 @@ def init_db():
         deadline TEXT NOT NULL,
         is_compulsory INTEGER DEFAULT 0,
         created_by TEXT DEFAULT 'VGU_ADMIN',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        eligibility_filters TEXT DEFAULT '{}'
     )
     """)
 
     # Migration: add is_compulsory column if it doesn't exist (for existing databases)
     try:
         cursor.execute("ALTER TABLE requirements ADD COLUMN is_compulsory INTEGER DEFAULT 0")
+        conn.commit()
+    except Exception:
+        pass  # Column already exists
+
+    # Migration: add eligibility_filters column if it doesn't exist
+    try:
+        cursor.execute("ALTER TABLE requirements ADD COLUMN eligibility_filters TEXT DEFAULT '{}'")
         conn.commit()
     except Exception:
         pass  # Column already exists
@@ -151,6 +159,53 @@ def init_db():
     )
     """)
 
+    # Events (Seminars, Workshops, Hackathons, Student Organized Events)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        event_type TEXT NOT NULL, -- 'Seminar', 'Workshop', 'Hackathon', 'Event'
+        organizer_type TEXT DEFAULT 'Admin', -- 'Admin' or 'Student'
+        organizer_name TEXT NOT NULL,
+        organizer_enrollment TEXT, -- if organized by student
+        description TEXT,
+        date TEXT,
+        venue TEXT,
+        registration_link TEXT,
+        created_by TEXT DEFAULT 'VGU_ADMIN',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    # Support FAQs
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS faqs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        category TEXT NOT NULL, -- 'Login & Access', 'Portal & Profile', 'Academics & Attendance', 'Events & Workshops', 'General'
+        question TEXT NOT NULL,
+        answer TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    # Support Queries raised by students
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS student_queries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        enrollment_no TEXT NOT NULL,
+        category TEXT NOT NULL, -- 'Assignment Deadline Extension', 'Attendance Related', 'Hackathon Participation', 'Workshop / Seminar', 'Other'
+        subject TEXT NOT NULL,
+        description TEXT NOT NULL,
+        proof_file_path TEXT,
+        proof_file_name TEXT,
+        status TEXT DEFAULT 'Open', -- 'Open', 'In Review', 'Resolved', 'Rejected'
+        admin_response TEXT DEFAULT '',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (enrollment_no) REFERENCES users (identifier)
+    )
+    """)
+
     conn.commit()
 
     # ── Migrations for existing databases ──────────────────────────────────
@@ -170,6 +225,34 @@ def init_db():
             conn.commit()
         except Exception:
             pass  # Column already exists
+
+    # Seed initial FAQs if empty
+    cursor.execute("SELECT COUNT(*) FROM faqs")
+    if cursor.fetchone()[0] == 0:
+        default_faqs = [
+            ("Login & Access", "I cannot log in with my Enrollment Number. What should I do?", "Please ensure your enrollment number is entered in uppercase (e.g. EN2023SE042). If you forgot your password, use the 'Forgot Password' recovery link on the splash page to verify via mobile SMS OTP."),
+            ("Portal & Profile", "Why are editing fields locked on my profile?", "New or recently updated profiles require verification by the VGU Academic Administration. Once an administrator approves your profile in the directory, full edit permissions and document submission capabilities will automatically unlock."),
+            ("Academics & Attendance", "How is my attendance and CGPA recorded?", "Semester marks and SGPA are derived from your uploaded grade sheets once audited by faculty. Attendance is integrated with classroom biometrics. If you attended an approved university hackathon or event and need your attendance compensated, submit an Attendance Related Query with proof in the Support tab."),
+            ("Events & Workshops", "Can students organize official seminars and hackathons?", "Yes! Student coordinators can propose events and submit their records under Certificates & Events, or contact administration to feature student-led hackathons on the campus announcements board."),
+            ("General", "How do I submit proofs for mandatory academic requirements?", "Navigate to 'VGU Requirements' in your student portal, review the deadline and instructions, click 'Submit Proof', attach your PDF or certificate, and submit. Status updates will be tracked in real-time.")
+        ]
+        cursor.executemany("INSERT INTO faqs (category, question, answer) VALUES (?, ?, ?)", default_faqs)
+        conn.commit()
+
+    # Seed initial Events if empty
+    cursor.execute("SELECT COUNT(*) FROM events")
+    if cursor.fetchone()[0] == 0:
+        default_events = [
+            ("VGU Annual Smart Tech Hackathon 2026", "Hackathon", "Admin", "Department of Computer Science & Engineering", "48-hour national hackathon challenging teams to build AI and sustainability solutions with cash prizes worth ₹1,50,000.", "2026-10-15", "VGU Innovation Hub, Block B", "https://vgu.ac.in/hackathons/2026", "ADM-1001"),
+            ("Masterclass on Kubernetes & Cloud Microservices", "Workshop", "Admin", "Prof. Sunita Rao (Cloud Systems Lab)", "Hands-on container orchestration, Docker multi-stage builds, and deployment on AWS EKS clusters.", "2026-10-05", "Virtual & Central Computing Lab 3", "https://vgu.ac.in/workshops/k8s", "ADM-1002"),
+            ("National Seminar on Generative AI & Academic Integrity", "Seminar", "Admin", "Dean of Academic Affairs", "Keynote address by industry experts from leading AI research laboratories on ethical LLM usage in engineering.", "2026-09-30", "University Main Auditorium", "", "ADM-1001"),
+            ("Open Source Software Contribution Sprint", "Event", "Student", "Aman Verma (SE Student Chapter Lead)", "Student-organized coding jam to guide 1st and 2nd year students on contributing to open source repositories on GitHub.", "2026-10-08", "VGU Coding Club Room 204", "https://github.com/vgu-oss", "EN2023SE042")
+        ]
+        cursor.executemany("""
+        INSERT INTO events (title, event_type, organizer_type, organizer_name, description, date, venue, registration_link, created_by)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, default_events)
+        conn.commit()
 
     conn.close()
 

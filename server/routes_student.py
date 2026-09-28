@@ -423,3 +423,109 @@ def create_submission():
         "message": "Submission submitted for faculty verification.",
         "completeness": completeness
     })
+
+# ── ANNOUNCEMENTS (REQUIREMENTS + CAMPUS EVENTS) ─────────────────────────
+@student_bp.route("/announcements", methods=["GET"])
+def get_announcements():
+    enrollment_no = request.args.get("enrollment_no", "").strip()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    prof = None
+    if enrollment_no:
+        cursor.execute("SELECT branch, semester_year FROM student_profiles WHERE UPPER(enrollment_no) = UPPER(?)", (enrollment_no,))
+        prof = cursor.fetchone()
+
+    # Requirements announcements
+    branch_val = prof["branch"] if prof else "All"
+    year_val = prof["semester_year"] if prof else "All"
+
+    cursor.execute("""
+    SELECT id, title, description, target_branch, target_year, deadline, is_compulsory, created_at, 'Requirement' as announcement_type
+    FROM requirements
+    WHERE (target_branch = 'All' OR target_branch = ?)
+      AND (target_year = 'All' OR target_year = ?)
+    ORDER BY created_at DESC
+    """, (branch_val, year_val))
+    req_announcements = [dict(r) for r in cursor.fetchall()]
+
+    # Events announcements
+    cursor.execute("""
+    SELECT id, title, description, event_type, organizer_type, organizer_name, date, venue, registration_link, created_at, 'Event' as announcement_type
+    FROM events
+    ORDER BY created_at DESC
+    """)
+    event_announcements = [dict(r) for r in cursor.fetchall()]
+
+    conn.close()
+
+    # Merge and sort by created_at DESC
+    all_announcements = req_announcements + event_announcements
+    all_announcements.sort(key=lambda x: str(x.get("created_at") or ""), reverse=True)
+
+    return jsonify({
+        "success": True,
+        "announcements": all_announcements,
+        "requirements_count": len(req_announcements),
+        "events_count": len(event_announcements)
+    })
+
+# ── EVENTS (SEMINARS, WORKSHOPS, HACKATHONS) ─────────────────────────────
+@student_bp.route("/events", methods=["GET"])
+def get_events():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM events ORDER BY date ASC, id DESC")
+    events = [dict(r) for r in cursor.fetchall()]
+    conn.close()
+    return jsonify({"success": True, "events": events})
+
+# ── FAQS ─────────────────────────────────────────────────────────────────
+@student_bp.route("/faqs", methods=["GET"])
+def get_faqs():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM faqs ORDER BY category ASC, id ASC")
+    faqs = [dict(r) for r in cursor.fetchall()]
+    conn.close()
+    return jsonify({"success": True, "faqs": faqs})
+
+# ── STUDENT QUERIES (RAISE A QUERY) ──────────────────────────────────────
+@student_bp.route("/queries", methods=["GET", "POST"])
+def manage_student_queries():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if request.method == "POST":
+        data = request.get_json() or {}
+        enrollment_no = data.get("enrollment_no", "").strip()
+        category = data.get("category", "Other").strip()
+        subject = data.get("subject", "").strip()
+        description = data.get("description", "").strip()
+        proof_file_path = data.get("proof_file_path", "").strip()
+        proof_file_name = data.get("proof_file_name", "").strip()
+
+        if not enrollment_no or not subject or not description:
+            conn.close()
+            return jsonify({"success": False, "message": "Enrollment number, category, subject, and description are required."}), 400
+
+        cursor.execute("""
+        INSERT INTO student_queries (enrollment_no, category, subject, description, proof_file_path, proof_file_name, status)
+        VALUES (?, ?, ?, ?, ?, ?, 'Open')
+        """, (enrollment_no, category, subject, description, proof_file_path, proof_file_name))
+        conn.commit()
+        qid = cursor.lastrowid
+        conn.close()
+        return jsonify({"success": True, "message": "Your query has been submitted to the academic administration.", "query_id": qid})
+
+    # GET queries for this student
+    enrollment_no = request.args.get("enrollment_no", "").strip()
+    if not enrollment_no:
+        conn.close()
+        return jsonify({"success": False, "message": "Enrollment number required"}), 400
+
+    cursor.execute("SELECT * FROM student_queries WHERE UPPER(enrollment_no) = UPPER(?) ORDER BY id DESC", (enrollment_no,))
+    queries = [dict(r) for r in cursor.fetchall()]
+    conn.close()
+    return jsonify({"success": True, "queries": queries})
+

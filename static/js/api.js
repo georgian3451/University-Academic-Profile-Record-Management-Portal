@@ -168,6 +168,78 @@ const API = {
 
   getEmailLogs() {
     return this.request('/api/admin/email-logs');
+  },
+
+  // Events & Hackathons / Workshops / Seminars
+  getAdminEvents() {
+    return this.request('/api/admin/events');
+  },
+
+  createAdminEvent(data) {
+    return this.request('/api/admin/events', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  },
+
+  deleteAdminEvent(eventId) {
+    return this.request(`/api/admin/events/${eventId}`, {
+      method: 'DELETE'
+    });
+  },
+
+  // FAQs
+  getAdminFaqs() {
+    return this.request('/api/admin/faqs');
+  },
+
+  createAdminFaq(data) {
+    return this.request('/api/admin/faqs', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  },
+
+  deleteAdminFaq(faqId) {
+    return this.request(`/api/admin/faqs/${faqId}`, {
+      method: 'DELETE'
+    });
+  },
+
+  // Support Queries
+  getAdminQueries(status = 'All', category = 'All') {
+    return this.request(`/api/admin/queries?status=${encodeURIComponent(status)}&category=${encodeURIComponent(category)}`);
+  },
+
+  respondToQuery(queryId, status, admin_response) {
+    return this.request(`/api/admin/queries/${queryId}/respond`, {
+      method: 'POST',
+      body: JSON.stringify({ status, admin_response })
+    });
+  },
+
+  // Student portal API methods
+  getStudentAnnouncements(enrollmentNo) {
+    return this.request(`/api/student/announcements?enrollment_no=${encodeURIComponent(enrollmentNo)}`);
+  },
+
+  getStudentEvents() {
+    return this.request('/api/student/events');
+  },
+
+  getStudentFaqs() {
+    return this.request('/api/student/faqs');
+  },
+
+  getStudentQueries(enrollmentNo) {
+    return this.request(`/api/student/queries?enrollment_no=${encodeURIComponent(enrollmentNo)}`);
+  },
+
+  submitStudentQuery(data) {
+    return this.request('/api/student/queries', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
   }
 };
 
